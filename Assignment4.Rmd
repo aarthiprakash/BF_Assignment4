@@ -1,0 +1,128 @@
+---
+title: "Assignment 4"
+author: "aarthi.prakash@rutgers.edu"
+date: "10/8/2023"
+output: html_document
+---
+
+```{r}
+#Manual Data Combination
+#df1 = read.csv("/Users/aarthiprakash/Documents/Rutgers MBA 2022/Fall 2023/[0] Business Forecasting/TimeSeriesData/HospitalBedsData/2016-quarter-4-complete-data-set-4-14-17.csv")
+#df2 = read.csv("/Users/aarthiprakash/Documents/Rutgers MBA 2022/Fall 2023/[0] Business Forecasting/TimeSeriesData/HospitalBedsData/2017-quarter-1-complete-data-set-7-14-17.csv")
+#df3 = read.csv("/Users/aarthiprakash/Documents/Rutgers MBA 2022/Fall 2023/[0] Business Forecasting/TimeSeriesData/HospitalBedsData/2017-quarter-2-complete-data-set-11-02-17.csv")
+#df4 = read.csv("/Users/aarthiprakash/Documents/Rutgers MBA 2022/Fall 2023/[0] Business Forecasting/TimeSeriesData/HospitalBedsData/2017-quarter-3-complete-data-set-1-12-18.csv")
+#df5 = read.csv("/Users/aarthiprakash/Documents/Rutgers MBA 2022/Fall 2023/[0] Business Forecasting/TimeSeriesData/HospitalBedsData/2017-quarter-4-complete-data-set-4-13-18.csv")
+#df6 = read.csv("/Users/aarthiprakash/Documents/Rutgers MBA 2022/Fall 2023/[0] Business Forecasting/TimeSeriesData/HospitalBedsData/2018-quarter-1-complete-data-set-7-13-18.csv")
+#df7 = read.csv("/Users/aarthiprakash/Documents/Rutgers MBA 2022/Fall 2023/[0] Business Forecasting/TimeSeriesData/HospitalBedsData/2018-quarter-2-complete-data-set-10-10-18.csv")
+#df8 = read.csv("/Users/aarthiprakash/Documents/Rutgers MBA 2022/Fall 2023/[0] Business Forecasting/TimeSeriesData/HospitalBedsData/2018-quarter-3-complete-data-set-1-10-19.csv")
+#df9 = read.csv("/Users/aarthiprakash/Documents/Rutgers MBA 2022/Fall 2023/[0] Business Forecasting/TimeSeriesData/HospitalBedsData/2018-quarter-4-complete-data-set-4-11-2019.csv")
+#df10 = read.csv("/Users/aarthiprakash/Documents/Rutgers MBA 2022/Fall 2023/[0] Business Forecasting/TimeSeriesData/HospitalBedsData/2019-quarter-1-complete-data-set-7-11-19.csv")
+#df11 = read.csv("/Users/aarthiprakash/Documents/Rutgers MBA 2022/Fall 2023/[0] Business Forecasting/TimeSeriesData/HospitalBedsData/2019-quarter-2-complete-data-set-10-10-19.csv")
+#df12 = read.csv("/Users/aarthiprakash/Documents/Rutgers MBA 2022/Fall 2023/[0] Business Forecasting/TimeSeriesData/HospitalBedsData/2019-quarter-3-complete-data-set-1-10-20.csv")
+#df13 = read.csv("/Users/aarthiprakash/Documents/Rutgers MBA 2022/Fall 2023/[0] Business Forecasting/TimeSeriesData/HospitalBedsData/2019-quarter-4-complete-data-set-4-10-20.csv")
+#df14 = read.csv("/Users/aarthiprakash/Documents/Rutgers MBA 2022/Fall 2023/[0] Business Forecasting/TimeSeriesData/HospitalBedsData/2020-quarter-1-complete-data-set-9-4-20.csv")
+#df15 = read.csv("/Users/aarthiprakash/Documents/Rutgers MBA 2022/Fall 2023/[0] Business Forecasting/TimeSeriesData/HospitalBedsData/2020-quarter-2-complete-data-set-10-19-2020.csv")
+
+#hospital_df = rbind(df1,df2,df3,df4,df5,df6,df7,df8,df9,df10,df11,df12,df13,df14,df15)
+
+
+#Creating a Time Series Variable in R
+#names(hospital_df)
+#NET_PAT_REV_CC - 
+# KAISER FOUNDATION HOSPITAL - LOS ANGELES 
+
+#hospital_df[hospital_df$FAC_NAME == 'ALAMEDA HOSPITAL',3]
+#[1] 20164 20171 20172 20173 20174 20181 20182 20183 20184 20191 20192 20193 20194 20201 20202
+#names(hospital_df)
+# 3, 110
+
+
+#Creating Time series from data points - had trouble so done manually
+#alameda_df <- hospital_df[hospital_df$FAC_NAME == 'ALAMEDA HOSPITAL',110]
+#alameda_df
+
+library(fpp)
+library(fpp2)
+revenue = c(22678748,22678748,20029401,17268922,18180084,19004534,20084518,16258408,17425854,16334619,17203133,14186886,19672830,20246429,20729340,17236086,19094631,17655253,17947392,18193745,18539068,19193293,16396438)
+alameda_ts <- ts(revenue, frequency = 4, start = c(2016,4), end = c(2022,2))
+alameda_ts
+
+#General Time Series Traits
+attributes(alameda_ts)
+plot(alameda_ts)
+Acf(alameda_ts)
+#There is not seasonality or trend based on the ACF plot. None of the data points are statistically significant.
+
+#Mean Forecast
+mean_forecast <- meanf(alameda_ts,4)
+plot(mean_forecast)
+accuracy(mean_forecast) #Gives MAPE = 8.590105
+
+# Naive Forecast
+naive_forecast <- naive(alameda_ts,4)
+plot(naive_forecast)
+accuracy(naive_forecast) #Gives MAPE = 9.257945 - not better than mean
+
+# Random Walk
+rwf_forecast <- rwf(alameda_ts,4)
+rwf_forecast <- rwf(alameda_ts,4, drift=TRUE)
+plot(rwf_forecast)
+accuracy(rwf_forecast) #Gives MAPE = 9.592681 - not better than mean
+
+# Seasonal Naive
+snaive_forecast <- snaive(alameda_ts,4)
+plot(snaive_forecast)
+accuracy(snaive_forecast) #Gives MAPE = 11.94603 - not better than mean
+
+#Moving Average
+MA4_forecast <- ma(alameda_ts,order=4)
+plot(MA4_forecast)
+MA8_forecast <- ma(alameda_ts,order=8)
+plot(MA8_forecast)
+
+
+# plot all in a single chart
+plot(mean_forecast)
+lines(naive_forecast$mean,col="red")
+lines(rwf_forecast$mean,col="green")
+lines(snaive_forecast$mean,col="black")
+lines(MA4_forecast,col="Pink")
+lines(MA4_forecast,col="Blue")
+
+#Exponential Smoothing, HOlts and Winters
+ets_forecast <- ets(alameda_ts)
+ets_forecast
+plot(ets_forecast)
+attributes(ets_forecast)
+accuracy(ets_forecast)
+
+# HoltWinters
+HW_forecast <- HoltWinters(alameda_ts) #Accounts for Trend and Seasonality in the absence of Phi
+plot(HW_forecast)
+SSE_Simple <- HoltWinters(alameda_ts,beta=FALSE,gamma=FALSE)
+attributes(SSE_Simple)
+plot(SSE_Simple)
+SSE_Simple$SSE
+head(SSE_Simple$fitted)
+forecast_HW_values <- forecast(HW_forecast, h=4) #Forecast a forecast
+accuracy(forecast_HW_values)
+
+#Forecast Comparison
+forecast_values <- forecast(ets_forecast, h=4) #Forecast a forecast
+plot(forecast_values) #Gives another forecast for 
+accuracy(forecast_values)
+
+#Plot all forecasts
+plot(mean_forecast)
+lines(naive_forecast$mean,col="red")
+lines(rwf_forecast$mean,col="green")
+lines(snaive_forecast$mean,col="purple")
+lines(MA4_forecast,col="pink")
+lines(MA8_forecast,col="blue")
+
+#Plot Smoothing
+#plot(mean_forecast)
+#lines(ets_forecast,col='purple')
+#lines(HW_forecast,col='blue')
+
+```
